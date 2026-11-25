@@ -47,5 +47,22 @@ export function embrace(a,b,weight){
  const head=findBone(a,/head$/);
  if(head){const tilt=new T.Quaternion().setFromEuler(new T.Euler(.045,0,.10));head.quaternion.slerp(head.quaternion.clone().multiply(tilt),weight)}
 }
-export function holdHands(a,b,weight){if(!a.rig||!b.rig)return;a.root.updateMatrixWorld(true);b.root.updateMatrixWorld(true);const ac=a.root.position,bc=b.root.position,mid=ac.clone().lerp(bc,.5);mid.y=.89;const front=new T.Vector3(0,0,.12).applyAxisAngle(Y,a.root.rotation.y);mid.add(front);const toB=bc.clone().sub(ac);const aLeft=new T.Vector3(1,0,0).applyAxisAngle(Y,a.root.rotation.y);const side=toB.dot(aLeft)>0?'left':'right',other=side==='left'?'right':'left';for(const [person,key] of [[a,side],[b,other]]){const sign=key==='left'?1:-1;const pole=person.root.localToWorld(new T.Vector3(sign*.25,1.03,-.20));solve(person.rig[key],mid,pole,weight);curl(person,key,.18*weight)}}
+export function holdHands(a,b,weight){
+ if(!a.rig||!b.rig)return;
+ a.root.updateMatrixWorld(true);b.root.updateMatrixWorld(true);
+ let best=null,distance=Infinity;
+ for(const [left,right] of [['left','right'],['right','left']]){
+   const first=a.rig[left],second=b.rig[right];if(!first||!second)continue;
+   const span=pos(first.upper).distanceTo(pos(second.upper));
+   if(span<distance){best=[left,right];distance=span}
+ }
+ if(!best)return;
+ const near=pos(a.rig[best[0]].upper),far=pos(b.rig[best[1]].upper);
+ const mid=near.clone().lerp(far,.5);mid.y-=.48;
+ const front=new T.Vector3(0,0,.09).applyAxisAngle(Y,a.root.rotation.y);mid.add(front);
+ for(const [person,key] of [[a,best[0]],[b,best[1]]]){
+   const sign=key==='left'?1:-1,pole=person.root.localToWorld(new T.Vector3(sign*.32,1.02,-.18));
+   solve(person.rig[key],mid,pole,weight);curl(person,key,.18*weight);
+ }
+}
 export function turn(root,angle,dt){let delta=Math.atan2(Math.sin(angle-root.rotation.y),Math.cos(angle-root.rotation.y));root.rotation.y+=delta*Math.min(1,dt*10)}

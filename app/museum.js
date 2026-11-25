@@ -1,3 +1,4 @@
+import {makeWalkInPlace} from './3d/locomotion.mjs';
 import {batchStaticProps} from './3d/static-props';
 import {createFace} from './3d/face';
 import {hugDuration,hugPose} from './3d/interaction.mjs';
@@ -115,7 +116,14 @@ async function loadCharacter(a,i){
      if(o.morphTargetDictionary&&o.morphTargetInfluences)a.morphs.push(o);
    });
    a.face=createFace(a,i);a.mixer=new T.AnimationMixer(model);a.clips={};
-   for(const clip of g.animations)a.clips[clip.name.toLowerCase()]=a.mixer.clipAction(clip);
+   const hips=a.rig.bones.find(b=>/hips$/i.test(b.name));
+   for(const clip of g.animations){
+     if(clip.name.toLowerCase()==='walk'&&hips){
+       const track=clip.tracks.find(track=>track.name===hips.name+'.position');
+       if(track)makeWalkInPlace(track,hips.position.toArray());
+     }
+     a.clips[clip.name.toLowerCase()]=a.mixer.clipAction(clip);
+   }
    a.current=a.clips.idle||Object.values(a.clips)[0];a.current?.play();
    a.mixer.update(.001);capturePose(a);a.root.add(model);a.model=model;
    if(i===0)tint();readyCount++;

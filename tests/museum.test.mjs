@@ -29,3 +29,10 @@ test('speech samples the current audio time and clears at pause',()=>{
  assert.equal(speechFrame(source)[speechChannels.jawOpen],.3);
  source.audio.paused=true;assert.equal(speechFrame(source),null);
 });
+import {makeWalkInPlace} from '../app/3d/locomotion.mjs';
+test('root travel is removed while gait height and lateral sway survive',()=>{
+ const track={times:[0,.5,1],values:[.1,.9,-1.2,.08,.93,-.58,0,.9,0]};
+ makeWalkInPlace(track,[0,.9,0]);
+ assert.ok(Math.abs(track.values[2])<1e-8&&Math.abs(track.values[8])<1e-8);
+ assert.ok(Math.abs(track.values[3]-.03)<1e-8);assert.equal(track.values[4],.93);
+});
