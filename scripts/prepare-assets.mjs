@@ -1,0 +1,6 @@
+import {mkdir,copyFile,readFile,writeFile} from 'node:fs/promises';
+import {resolve} from 'node:path';
+const base=resolve('public/assets');await mkdir(base+'/basis',{recursive:true});await mkdir(base+'/avatars',{recursive:true});
+for(const file of ['basis_transcoder.js','basis_transcoder.wasm'])await copyFile(resolve('node_modules/three/examples/jsm/libs/basis',file),base+'/basis/'+file);
+const assets=[['male','https://tevy.dev/models/casual-walker/v1/lod0.glb'],['female','https://tevy.dev/models/hiker/v1/lod0.glb']];
+await Promise.all(assets.map(async ([name,url])=>{const file=base+'/avatars/'+name+'.glb';try{const old=await readFile(file);if(old.toString('ascii',0,4)==='glTF')return}catch{}try{const res=await fetch(url,{signal:AbortSignal.timeout(20000)});if(!res.ok)throw Error('HTTP '+res.status);const data=Buffer.from(await res.arrayBuffer());if(data.toString('ascii',0,4)!=='glTF'||data.length<10000||data.length>15000000)throw Error('Invalid GLB');await writeFile(file,data);console.log('Prepared '+name+' GLB ('+data.length+' bytes)')}catch(e){console.warn('Asset not cached: '+name+'. Browser will try the pinned CDN.',e.message)}}));

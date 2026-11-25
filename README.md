@@ -25,3 +25,6 @@ Replace the local demo data adapter with authenticated museum/membership tables,
 
 ## V2 — expanded museum
 Seven connected spaces: entrance, memory hall, surprise suite, photo wing, cinema, music lounge and starlight terrace. New room navigator, marble/wood architectural materials, environment reflections, animated introduction and proposal hearts. Animated CC0 GLB characters are loaded from https://tevy.dev/models/casual-walker and https://tevy.dev/models/hiker (CC0 1.0); procedural fallback if unavailable. Walking/idle/wave use rigged animation when loaded; hug/hold are approximate avatar positioning, not motion-captured clips. No backend or environment variables. External GLB availability and actual device performance require browser testing.
+
+## V3 character pipeline
+KTX2 + Meshopt decoding, build-time same-origin cache and pinned CDN fallback, no toy placeholder avatars, visible failure/retry UI. Gesture controller uses two-bone inverse kinematics and coordinated positioning, cross-fades, timed release and an alternate hug camera. Hug and hand-holding are procedural, not motion-capture animations. Casual Walker and Hiker are CC0 models from tevy.dev. Realism is limited by the assets; outfit recolor depends on the mesh material names. Backend remains disabled.
