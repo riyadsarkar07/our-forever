@@ -14,7 +14,30 @@ function solve(chain,target,pole,weight){if(!chain||weight<=0)return;const {uppe
 export function capturePose(a){if(!a.rig)return;a.pose=new Map(a.rig.bones.map(b=>[b,b.quaternion.clone()]))}
 export function restorePose(a){if(a.pose)for(const [b,q] of a.pose)b.quaternion.copy(q)}
 const smooth=x=>{x=T.MathUtils.clamp(x,0,1);return x*x*(3-2*x)};
-export function gestureWeight(elapsed,duration){return Math.min(smooth((elapsed-.42)/.5),smooth((duration-elapsed)/.45))}
-export function embrace(a,b,weight){if(!a.rig||!b.model)return;a.root.updateMatrixWorld(true);b.root.updateMatrixWorld(true);for(const [side,sign] of [['left',1],['right',-1]]){const target=b.root.localToWorld(new T.Vector3(sign*.19,side==='left'?1.31:1.12,-.12));const pole=a.root.localToWorld(new T.Vector3(sign*.46,1.0,.24));solve(a.rig[side],target,pole,weight)}}
+export function gestureWeight(elapsed,duration){return Math.min(smooth((elapsed-.75)/.7),smooth((duration-elapsed)/.95))}
+// A proper embrace uses the partner's far upper back, not their shoulders.
+// Heights are based on actual skeleton landmarks rather than a single fixed y.
+function findBone(a,pattern){return a.rig?.bones.find(b=>pattern.test(norm(b.name)))}
+export function embrace(a,b,weight){
+ if(!a.rig||!b.model)return;
+ a.root.updateMatrixWorld(true);b.root.updateMatrixWorld(true);
+ const neck=findBone(b,/neck$/),spine=findBone(b,/spine2$|upperchest$|chest$/);
+ const y=neck?pos(neck).y-b.root.position.y-.18:1.28;
+ const chest=spine?pos(spine).y-b.root.position.y:y-.12;
+ for(const [side,sign] of [['left',1],['right',-1]]){
+   // Facing avatars have opposing local axes; use the opposite side of the partner.
+   const target=b.root.localToWorld(new T.Vector3(-sign*.13,side==='left'?y:chest-.08,-.15));
+   const pole=a.root.localToWorld(new T.Vector3(sign*.58,side==='left'?y-.20:chest-.22,.16));
+   solve(a.rig[side],target,pole,weight);
+ }
+ const head=findBone(a,/head$/);
+ if(head){const tilt=new T.Quaternion().setFromEuler(new T.Euler(.045,0,.10));head.quaternion.slerp(head.quaternion.clone().multiply(tilt),weight)}
+}
+export function facial(a,t,w,index){
+ const phase=(t+index*1.7)%4.8,blink=phase<.16?Math.sin(phase/.16*Math.PI):0;
+ for(const o of a.morphs||[]){const d=o.morphTargetDictionary,v=o.morphTargetInfluences;
+ for(const [name,value] of Object.entries({mouthSmileLeft:.18+w*.46,mouthSmileRight:.18+w*.46,cheekSquintLeft:w*.20,cheekSquintRight:w*.20,eyeBlinkLeft:Math.max(blink,w*.62),eyeBlinkRight:Math.max(blink,w*.62)})){const i=d[name];if(i!==undefined)v[i]=value}
+ }
+}
 export function holdHands(a,b,weight){if(!a.rig||!b.rig)return;a.root.updateMatrixWorld(true);b.root.updateMatrixWorld(true);const ac=a.root.position,bc=b.root.position,mid=ac.clone().lerp(bc,.5);mid.y=.89;const front=new T.Vector3(0,0,.12).applyAxisAngle(Y,a.root.rotation.y);mid.add(front);const toB=bc.clone().sub(ac);const aLeft=new T.Vector3(1,0,0).applyAxisAngle(Y,a.root.rotation.y);const side=toB.dot(aLeft)>0?'left':'right',other=side==='left'?'right':'left';for(const [person,key] of [[a,side],[b,other]]){const sign=key==='left'?1:-1;const pole=person.root.localToWorld(new T.Vector3(sign*.25,1.03,-.20));solve(person.rig[key],mid,pole,weight)}}
 export function turn(root,angle,dt){let delta=Math.atan2(Math.sin(angle-root.rotation.y),Math.cos(angle-root.rotation.y));root.rotation.y+=delta*Math.min(1,dt*10)}
