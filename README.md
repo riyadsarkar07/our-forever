@@ -1,33 +1,17 @@
-# Our Forever — A Museum of Us
+# Our Forever
+A seven-room couple museum for one browser. Explore on foot with WASD, arrow keys or touch. Rooms and Our Story also provide direct access to rooms, memories and letters.
 
-An interactive browser-based 3D museum prototype. No credentials or database needed.
+## Run and verify
+Use Node 24 and npm. Run `npm ci`, then `npm run dev`. For production use `npm run build` and `npm start`. Both modes download or verify cached avatars at an immutable upstream revision. A missing or corrupt cache is fetched again. An unavailable upstream or a checksum mismatch stops preparation. The browser requests both GLBs from this site when the visitor enters or explicitly previews the gallery. Failed loads offer Retry.
 
-## Run locally
-```sh
-npm install
-npm run dev
-```
-Visit http://localhost:3000. Production: npm run build && npm start.
+Run `npm run lint`, `npm test` and `npm run build`. Install the Playwright Chromium browser with `npx playwright install chromium` and run `npm run test:browser`. Set MUSEUM_CHROMIUM to test a specific Chromium executable. Run `node scripts/inspect-avatars.mjs` to print the exact joint, morph, clip, material and embedded image inventory. Append `&metrics=1` to `/?demo=1` for renderer counters and GLB timings in the canvas's data-metrics attribute.
 
-## Vercel
-Import riyadsarkar07/our-forever, select Next.js, root directory ./, default build settings. No environment variables required.
+## Local features
+Photos and settings use browser storage. Videos, local voice clips and music last for the session. The invitation opens the sample route, chat replies are simulated, and the admin view displays sample data. The app has no accounts, remote couple media, shared presence or voice cloning.
 
-## Demo scope
-- Real Three.js gallery, walking avatars, photo frames, surprise room, keyboard/drag/touch controls.
-- Museum editor, six media slots, local photo persistence, session-only videos and custom songs, original synthesized ambient melody, outfit and graphics options.
-- Sample dashboard, admin interface, invitation URL, simulated partner and chat, simple gesture animations.
-- No authentication, payments, real multiplayer, voice chat, authorization, server storage or remote sharing. Do not treat the demo as a private remote museum.
-- Procedural stylized geometry and original illustrated placeholders rather than photorealistic licensed 3D assets.
-- Supabase integration is deferred; data is local to the current browser and can be lost if browser storage is cleared.
+The scene moves the character roots in world space, blends native animation clips, and overlays procedural gaze and arm IK. The hug uses coordinated procedural poses. Automatic graphics start at medium and can lower resolution and disable shadows after sustained poor frame times. Low, medium and high are manual overrides. The landing poster is an actual render of this museum.
 
-## Future backend
-Replace the local demo data adapter with authenticated museum/membership tables, RLS, private storage with signed URLs, and room-scoped realtime presence. Do not expose service-role keys to the browser. Enforce room membership for every resource.
+## Optional speech
+Our Story accepts a local voice file. Playback drives approximate jaw motion from an audio envelope. Closing the panel or stopping playback releases the audio. The separate Azure button asks the server for a fixed public English greeting. Only the server reads AZURE_SPEECH_KEY and AZURE_SPEECH_REGION. It caches one greeting per running server instance. Without credentials the endpoint returns 503 and the local museum continues to work. No personal letter or local clip is sent to Azure. Timed frames are sampled from audio playback time. The selected voice still requires a live provider acceptance test before publishing speech claims.
 
-## V2 — expanded museum
-Seven connected spaces: entrance, memory hall, surprise suite, photo wing, cinema, music lounge and starlight terrace. New room navigator, marble/wood architectural materials, environment reflections, animated introduction and proposal hearts. Animated CC0 GLB characters are loaded from https://tevy.dev/models/casual-walker and https://tevy.dev/models/hiker (CC0 1.0); procedural fallback if unavailable. Walking/idle/wave use rigged animation when loaded; hug/hold are approximate avatar positioning, not motion-captured clips. No backend or environment variables. External GLB availability and actual device performance require browser testing.
-
-## V3 character pipeline
-KTX2 + Meshopt decoding, build-time same-origin cache and pinned CDN fallback, no toy placeholder avatars, visible failure/retry UI. Gesture controller uses two-bone inverse kinematics and coordinated positioning, cross-fades, timed release and an alternate hug camera. Hug and hand-holding are procedural, not motion-capture animations. Casual Walker and Hiker are CC0 models from tevy.dev. Realism is limited by the assets; outfit recolor depends on the mesh material names. Backend remains disabled.
-
-## V4 couple update
-Replaces the hiker and casual walker with Arjun and Priya from Avatar Studio's MIT-licensed Rocketbox-derived library (pinned commit 2fd9ec82fbe1613d40ae38aadcca3f410725f740). More detailed face textures and original outfits; native mocap for walking/idle/wave, procedural paired approach/embrace/release with back-reaching IK, facial smiles/blinks and closer cinematic camera. Hug is not a captured paired clip. See THIRD_PARTY_NOTICES.md. No backend.
+[Azure facial animation documentation](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-speech-synthesis-viseme) · [Third-party notices](THIRD_PARTY_NOTICES.md)
