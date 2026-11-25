@@ -22,3 +22,6 @@ Import riyadsarkar07/our-forever, select Next.js, root directory ./, default bui
 
 ## Future backend
 Replace the local demo data adapter with authenticated museum/membership tables, RLS, private storage with signed URLs, and room-scoped realtime presence. Do not expose service-role keys to the browser. Enforce room membership for every resource.
+
+## V2 — expanded museum
+Seven connected spaces: entrance, memory hall, surprise suite, photo wing, cinema, music lounge and starlight terrace. New room navigator, marble/wood architectural materials, environment reflections, animated introduction and proposal hearts. Animated CC0 GLB characters are loaded from https://tevy.dev/models/casual-walker and https://tevy.dev/models/hiker (CC0 1.0); procedural fallback if unavailable. Walking/idle/wave use rigged animation when loaded; hug/hold are approximate avatar positioning, not motion-captured clips. No backend or environment variables. External GLB availability and actual device performance require browser testing.
